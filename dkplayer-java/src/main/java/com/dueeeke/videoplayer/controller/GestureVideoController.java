@@ -19,7 +19,6 @@ import com.dueeeke.videoplayer.util.PlayerUtils;
 import java.util.Map;
 
 /**
- * 包含手势操作的VideoController
  * Created by dueeeke on 2018/1/6.
  */
 
@@ -27,7 +26,6 @@ public abstract class GestureVideoController extends BaseVideoController impleme
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         View.OnTouchListener {
-
     private GestureDetector mGestureDetector;
     private AudioManager mAudioManager;
     private boolean mIsGestureEnabled = true;
@@ -38,15 +36,10 @@ public abstract class GestureVideoController extends BaseVideoController impleme
     private boolean mChangePosition;
     private boolean mChangeBrightness;
     private boolean mChangeVolume;
-
     private boolean mCanChangePosition = true;
-
     private boolean mEnableInNormal;
-
     private boolean mCanSlide;
-
     private int mCurPlayState;
-
 
     public GestureVideoController(@NonNull Context context) {
         super(context);
@@ -66,27 +59,6 @@ public abstract class GestureVideoController extends BaseVideoController impleme
         mAudioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
         mGestureDetector = new GestureDetector(getContext(), this);
         setOnTouchListener(this);
-    }
-
-    /**
-     * 设置是否可以滑动调节进度，默认可以
-     */
-    public void setCanChangePosition(boolean canChangePosition) {
-        mCanChangePosition = canChangePosition;
-    }
-
-    /**
-     * 是否在竖屏模式下开始手势控制，默认关闭
-     */
-    public void setEnableInNormal(boolean enableInNormal) {
-        mEnableInNormal = enableInNormal;
-    }
-
-    /**
-     * 是否开启手势空控制，默认开启，关闭之后，双击播放暂停以及手势调节进度，音量，亮度功能将关闭
-     */
-    public void setGestureEnabled(boolean gestureEnabled) {
-        mIsGestureEnabled = gestureEnabled;
     }
 
     @Override
@@ -120,22 +92,16 @@ public abstract class GestureVideoController extends BaseVideoController impleme
         return mGestureDetector.onTouchEvent(event);
     }
 
-    /**
-     * 手指按下的瞬间
-     */
     @Override
     public boolean onDown(MotionEvent e) {
-        if (!isInPlaybackState() //不处于播放状态
-                || !mIsGestureEnabled //关闭了手势
-                || PlayerUtils.isEdge(getContext(), e)) //处于屏幕边沿
+        if (!isInPlaybackState()
+                || !mIsGestureEnabled
+                || PlayerUtils.isEdge(getContext(), e))
             return true;
         mStreamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Activity activity = PlayerUtils.scanForActivity(getContext());
-        if (activity == null) {
-            mBrightness = 0;
-        } else {
-            mBrightness = activity.getWindow().getAttributes().screenBrightness;
-        }
+        if (activity == null) mBrightness = 0;
+        else mBrightness = activity.getWindow().getAttributes().screenBrightness;
         mFirstTouch = true;
         mChangePosition = false;
         mChangeBrightness = false;
@@ -143,56 +109,38 @@ public abstract class GestureVideoController extends BaseVideoController impleme
         return true;
     }
 
-    /**
-     * 单击
-     */
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-        if (isInPlaybackState()) {
-            mControlWrapper.toggleShowState();
-        }
+        if (isInPlaybackState()) mControlWrapper.toggleShowState();
         return true;
     }
 
-    /**
-     * 双击
-     */
     @Override
     public boolean onDoubleTap(MotionEvent e) {
         if (!isLocked() && isInPlaybackState()) togglePlay();
         return true;
     }
 
-    /**
-     * 在屏幕上滑动
-     */
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        if (!isInPlaybackState() //不处于播放状态
-                || !mIsGestureEnabled //关闭了手势
-                || !mCanSlide //关闭了滑动手势
-                || isLocked() //锁住了屏幕
-                || PlayerUtils.isEdge(getContext(), e1)) //处于屏幕边沿
+        if (!isInPlaybackState()
+                || !mIsGestureEnabled
+                || !mCanSlide
+                || isLocked()
+                || PlayerUtils.isEdge(getContext(), e1))
             return true;
         float deltaX = e1.getX() - e2.getX();
         float deltaY = e1.getY() - e2.getY();
         if (mFirstTouch) {
             mChangePosition = Math.abs(distanceX) >= Math.abs(distanceY);
             if (!mChangePosition) {
-                //半屏宽度
                 int halfScreen = PlayerUtils.getScreenWidth(getContext(), true) / 2;
-                if (e2.getX() > halfScreen) {
-                    mChangeVolume = true;
-                } else {
-                    mChangeBrightness = true;
-                }
+                if (e2.getX() > halfScreen) mChangeVolume = true;
+                else mChangeBrightness = true;
             }
-
             if (mChangePosition) {
-                //根据用户设置是否可以滑动调节进度来决定最终是否可以滑动调节进度
                 mChangePosition = mCanChangePosition;
             }
-
             if (mChangePosition || mChangeBrightness || mChangeVolume) {
                 for (Map.Entry<IControlComponent, Boolean> next : mControlComponents.entrySet()) {
                     IControlComponent component = next.getKey();
@@ -203,13 +151,9 @@ public abstract class GestureVideoController extends BaseVideoController impleme
             }
             mFirstTouch = false;
         }
-        if (mChangePosition) {
-            slideToChangePosition(deltaX);
-        } else if (mChangeBrightness) {
-            slideToChangeBrightness(deltaY);
-        } else if (mChangeVolume) {
-            slideToChangeVolume(deltaY);
-        }
+        if (mChangePosition) slideToChangePosition(deltaX);
+        else if (mChangeBrightness) slideToChangeBrightness(deltaY);
+        else if (mChangeVolume) slideToChangeVolume(deltaY);
         return true;
     }
 
@@ -238,9 +182,7 @@ public abstract class GestureVideoController extends BaseVideoController impleme
         int height = getMeasuredHeight();
         if (mBrightness == -1.0f) mBrightness = 0.5f;
         float brightness = deltaY * 2 / height * 1.0f + mBrightness;
-        if (brightness < 0) {
-            brightness = 0f;
-        }
+        if (brightness < 0) brightness = 0f;
         if (brightness > 1.0f) brightness = 1.0f;
         int percent = (int) (brightness * 100);
         attributes.screenBrightness = brightness;
@@ -272,7 +214,6 @@ public abstract class GestureVideoController extends BaseVideoController impleme
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //滑动结束时事件处理
         if (!mGestureDetector.onTouchEvent(event)) {
             int action = event.getAction();
             switch (action) {

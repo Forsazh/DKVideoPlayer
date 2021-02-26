@@ -9,13 +9,8 @@ import com.dueeeke.videoplayer.player.AbstractPlayer;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.dueeeke.videoplayer.render.IRenderView;
 
-/**
- * TikTok专用RenderView，横屏视频默认显示，竖屏视频居中裁剪
- * 使用代理模式实现
- */
 public class TikTokRenderView implements IRenderView {
-
-    private IRenderView mProxyRenderView;
+    private final IRenderView mProxyRenderView;
 
     TikTokRenderView(@NonNull IRenderView renderView) {
         this.mProxyRenderView = renderView;
@@ -31,10 +26,8 @@ public class TikTokRenderView implements IRenderView {
         if (videoWidth > 0 && videoHeight > 0) {
             mProxyRenderView.setVideoSize(videoWidth, videoHeight);
             if (videoHeight > videoWidth) {
-                //竖屏视频，使用居中裁剪
                 mProxyRenderView.setScaleType(VideoView.SCREEN_SCALE_CENTER_CROP);
             } else {
-                //横屏视频，使用默认模式
                 mProxyRenderView.setScaleType(VideoView.SCREEN_SCALE_DEFAULT);
             }
         }
@@ -47,7 +40,6 @@ public class TikTokRenderView implements IRenderView {
 
     @Override
     public void setScaleType(int scaleType) {
-        // 置空，不要让外部去设置ScaleType
     }
 
     @Override

@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dueeeke.videocontroller" />
+<manifest package="com.dueeeke.videocontroller" />

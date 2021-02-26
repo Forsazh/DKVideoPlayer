@@ -6,7 +6,6 @@ import android.view.animation.Animation;
 import androidx.annotation.NonNull;
 
 public interface IControlComponent {
-
     void attach(@NonNull ControlWrapper controlWrapper);
 
     View getView();
@@ -20,5 +19,4 @@ public interface IControlComponent {
     void setProgress(int duration, int position);
 
     void onLockStateChanged(boolean isLocked);
-
 }

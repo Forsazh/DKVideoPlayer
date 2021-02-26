@@ -5,13 +5,9 @@ import android.view.View;
 import com.dueeeke.videoplayer.player.VideoView;
 
 public class MeasureHelper {
-
     private int mVideoWidth;
-
     private int mVideoHeight;
-
     private int mCurrentScreenScale;
-
     private int mVideoRotationDegree;
 
     public void setVideoRotation(int videoRotationDegree) {
@@ -27,24 +23,15 @@ public class MeasureHelper {
         mCurrentScreenScale = screenScale;
     }
 
-    /**
-     * 注意：VideoView的宽高一定要定死，否者以下算法不成立
-     */
     public int[] doMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270) { // 软解码时处理旋转信息，交换宽高
+        if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270) {
             widthMeasureSpec = widthMeasureSpec + heightMeasureSpec;
             heightMeasureSpec = widthMeasureSpec - heightMeasureSpec;
             widthMeasureSpec = widthMeasureSpec - heightMeasureSpec;
         }
-
         int width = View.MeasureSpec.getSize(widthMeasureSpec);
         int height = View.MeasureSpec.getSize(heightMeasureSpec);
-
-        if (mVideoHeight == 0 || mVideoWidth == 0) {
-            return new int[]{width, height};
-        }
-
-        //如果设置了比例
+        if (mVideoHeight == 0 || mVideoWidth == 0) return new int[]{width, height};
         switch (mCurrentScreenScale) {
             case VideoView.SCREEN_SCALE_DEFAULT:
             default:

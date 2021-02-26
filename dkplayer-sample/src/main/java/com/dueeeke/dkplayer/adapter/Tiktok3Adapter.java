@@ -21,9 +21,6 @@ import java.util.List;
 
 public class Tiktok3Adapter extends RecyclerView.Adapter<Tiktok3Adapter.ViewHolder> {
 
-    /**
-     * 数据源
-     */
     private List<TiktokBean> mVideoBeans;
 
     public Tiktok3Adapter(List<TiktokBean> videoBeans) {
@@ -41,7 +38,6 @@ public class Tiktok3Adapter extends RecyclerView.Adapter<Tiktok3Adapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Context context = holder.itemView.getContext();
         TiktokBean item = mVideoBeans.get(position);
-        //开始预加载
         PreloadManager.getInstance(context).addPreloadTask(item.videoDownloadUrl, position);
         Glide.with(context)
                 .load(item.coverImgUrl)
@@ -55,7 +51,6 @@ public class Tiktok3Adapter extends RecyclerView.Adapter<Tiktok3Adapter.ViewHold
     public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         TiktokBean item = mVideoBeans.get(holder.mPosition);
-        //取消预加载
         PreloadManager.getInstance(holder.itemView.getContext()).removePreloadTask(item.videoDownloadUrl);
     }
 
@@ -65,10 +60,9 @@ public class Tiktok3Adapter extends RecyclerView.Adapter<Tiktok3Adapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         public int mPosition;
-        public TextView mTitle;//标题
-        public ImageView mThumb;//封面图
+        public TextView mTitle;
+        public ImageView mThumb;
         public TikTokView mTikTokView;
         public FrameLayout mPlayerContainer;
 

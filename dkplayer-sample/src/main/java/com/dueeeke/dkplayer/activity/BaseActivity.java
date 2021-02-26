@@ -15,15 +15,9 @@ import androidx.core.view.ViewCompat;
 
 import com.dueeeke.dkplayer.R;
 import com.dueeeke.videoplayer.player.VideoView;
-import com.dueeeke.videoplayer.player.VideoViewManager;
 
-/**
- * 页面以及播放器共有逻辑封装
- * @param <T>
- */
 @SuppressLint("Registered")
 public class BaseActivity<T extends VideoView> extends AppCompatActivity {
-
     protected T mVideoView;
 
     protected int getTitleResId() {
@@ -42,10 +36,6 @@ public class BaseActivity<T extends VideoView> extends AppCompatActivity {
         return true;
     }
 
-    protected VideoViewManager getVideoViewManager() {
-        return VideoViewManager.instance();
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +44,6 @@ public class BaseActivity<T extends VideoView> extends AppCompatActivity {
         } else if (getContentView() != null) {
             setContentView(getContentView());
         }
-
-        //标题栏设置
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getTitleResId());
@@ -63,25 +51,12 @@ public class BaseActivity<T extends VideoView> extends AppCompatActivity {
                 actionBar.setDisplayHomeAsUpEnabled(true);
             }
         }
-
         initView();
-
-    }
-
-    protected void setTitle(String title) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(title);
-        }
     }
 
     protected void initView() {
-
     }
 
-    /**
-     * 把状态栏设成透明
-     */
     protected void setStatusBarTransparent() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             View decorView = getWindow().getDecorView();
@@ -100,41 +75,30 @@ public class BaseActivity<T extends VideoView> extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        }
+        if (item.getItemId() == android.R.id.home) finish();
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mVideoView != null) {
-            mVideoView.resume();
-        }
+        if (mVideoView != null) mVideoView.resume();
     }
-
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mVideoView != null) {
-            mVideoView.pause();
-        }
+        if (mVideoView != null) mVideoView.pause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mVideoView != null) {
-            mVideoView.release();
-        }
+        if (mVideoView != null) mVideoView.release();
     }
 
     @Override
     public void onBackPressed() {
-        if (mVideoView == null || !mVideoView.onBackPressed()) {
-            super.onBackPressed();
-        }
+        if (mVideoView == null || !mVideoView.onBackPressed()) super.onBackPressed();
     }
 }

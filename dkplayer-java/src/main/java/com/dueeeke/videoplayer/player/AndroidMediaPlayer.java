@@ -11,14 +11,10 @@ import android.view.SurfaceHolder;
 
 import java.util.Map;
 
-/**
- * 封装系统的MediaPlayer，不推荐，系统的MediaPlayer兼容性较差，建议使用IjkPlayer或者ExoPlayer
- */
 public class AndroidMediaPlayer extends AbstractPlayer {
-
     protected MediaPlayer mMediaPlayer;
     private int mBufferedPercent;
-    private Context mAppContext;
+    private final Context mAppContext;
     private boolean mIsPreparing;
 
     public AndroidMediaPlayer(Context context) {
@@ -128,8 +124,7 @@ public class AndroidMediaPlayer extends AbstractPlayer {
             public void run() {
                 try {
                     mMediaPlayer.release();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
                 }
             }
         }.start();
@@ -184,7 +179,6 @@ public class AndroidMediaPlayer extends AbstractPlayer {
 
     @Override
     public void setSpeed(float speed) {
-        // only support above Android M
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 mMediaPlayer.setPlaybackParams(mMediaPlayer.getPlaybackParams().setSpeed(speed));
@@ -196,7 +190,6 @@ public class AndroidMediaPlayer extends AbstractPlayer {
 
     @Override
     public float getSpeed() {
-        // only support above Android M
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 return mMediaPlayer.getPlaybackParams().getSpeed();
@@ -209,11 +202,10 @@ public class AndroidMediaPlayer extends AbstractPlayer {
 
     @Override
     public long getTcpSpeed() {
-        // no support
         return 0;
     }
 
-    private MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
+    private final MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
             mPlayerEventListener.onError();
@@ -221,30 +213,27 @@ public class AndroidMediaPlayer extends AbstractPlayer {
         }
     };
 
-    private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+    private final MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
             mPlayerEventListener.onCompletion();
         }
     };
 
-    private MediaPlayer.OnInfoListener onInfoListener = new MediaPlayer.OnInfoListener() {
+    private final MediaPlayer.OnInfoListener onInfoListener = new MediaPlayer.OnInfoListener() {
         @Override
         public boolean onInfo(MediaPlayer mp, int what, int extra) {
-            //解决MEDIA_INFO_VIDEO_RENDERING_START多次回调问题
             if (what == AbstractPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                 if (mIsPreparing) {
                     mPlayerEventListener.onInfo(what, extra);
                     mIsPreparing = false;
                 }
-            } else {
-                mPlayerEventListener.onInfo(what, extra);
-            }
+            } else mPlayerEventListener.onInfo(what, extra);
             return true;
         }
     };
 
-    private MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener = new MediaPlayer.OnBufferingUpdateListener() {
+    private final MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener = new MediaPlayer.OnBufferingUpdateListener() {
         @Override
         public void onBufferingUpdate(MediaPlayer mp, int percent) {
             mBufferedPercent = percent;
@@ -252,7 +241,7 @@ public class AndroidMediaPlayer extends AbstractPlayer {
     };
 
 
-    private MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
+    private final MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
             mPlayerEventListener.onPrepared();
@@ -260,7 +249,7 @@ public class AndroidMediaPlayer extends AbstractPlayer {
         }
     };
 
-    private MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener = new MediaPlayer.OnVideoSizeChangedListener() {
+    private final MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener = new MediaPlayer.OnVideoSizeChangedListener() {
         @Override
         public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
             int videoWidth = mp.getVideoWidth();

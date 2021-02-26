@@ -30,21 +30,16 @@ import com.google.android.exoplayer2.video.VideoListener;
 
 import java.util.Map;
 
-
 public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Player.EventListener {
-
     protected Context mAppContext;
     protected SimpleExoPlayer mInternalPlayer;
     protected MediaSource mMediaSource;
     protected ExoMediaSourceHelper mMediaSourceHelper;
-
     private PlaybackParameters mSpeedPlaybackParameters;
-
     private int mLastReportedPlaybackState = Player.STATE_IDLE;
     private boolean mLastReportedPlayWhenReady = false;
     private boolean mIsPreparing;
     private boolean mIsBuffering;
-
     private LoadControl mLoadControl;
     private RenderersFactory mRenderersFactory;
     private TrackSelector mTrackSelector;
@@ -64,30 +59,15 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
                 DefaultBandwidthMeter.getSingletonInstance(mAppContext),
                 Util.getLooper(),
                 new AnalyticsCollector(Clock.DEFAULT),
-                /* useLazyPreparation= */ true,
+                true,
                 Clock.DEFAULT)
                 .build();
         setOptions();
-
-        //播放器日志
         if (VideoViewManager.getConfig().mIsEnableLog && mTrackSelector instanceof MappingTrackSelector) {
             mInternalPlayer.addAnalyticsListener(new EventLogger((MappingTrackSelector) mTrackSelector, "ExoPlayer"));
         }
-
         mInternalPlayer.addListener(this);
         mInternalPlayer.addVideoListener(this);
-    }
-
-    public void setTrackSelector(TrackSelector trackSelector) {
-        mTrackSelector = trackSelector;
-    }
-
-    public void setRenderersFactory(RenderersFactory renderersFactory) {
-        mRenderersFactory = renderersFactory;
-    }
-
-    public void setLoadControl(LoadControl loadControl) {
-        mLoadControl = loadControl;
     }
 
     @Override
@@ -97,34 +77,29 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public void setDataSource(AssetFileDescriptor fd) {
-        //no support
     }
 
     @Override
     public void start() {
-        if (mInternalPlayer == null)
-            return;
+        if (mInternalPlayer == null) return;
         mInternalPlayer.setPlayWhenReady(true);
     }
 
     @Override
     public void pause() {
-        if (mInternalPlayer == null)
-            return;
+        if (mInternalPlayer == null) return;
         mInternalPlayer.setPlayWhenReady(false);
     }
 
     @Override
     public void stop() {
-        if (mInternalPlayer == null)
-            return;
+        if (mInternalPlayer == null) return;
         mInternalPlayer.stop();
     }
 
     @Override
     public void prepareAsync() {
-        if (mInternalPlayer == null)
-            return;
+        if (mInternalPlayer == null) return;
         if (mMediaSource == null) return;
         if (mSpeedPlaybackParameters != null) {
             mInternalPlayer.setPlaybackParameters(mSpeedPlaybackParameters);
@@ -134,7 +109,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
         mInternalPlayer.prepare(mMediaSource);
     }
 
-    private MediaSourceEventListener mMediaSourceEventListener = new MediaSourceEventListener() {
+    private final MediaSourceEventListener mMediaSourceEventListener = new MediaSourceEventListener() {
         @Override
         public void onReadingStarted(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
             if (mPlayerEventListener != null && mIsPreparing) {
@@ -157,8 +132,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public boolean isPlaying() {
-        if (mInternalPlayer == null)
-            return false;
+        if (mInternalPlayer == null) return false;
         int state = mInternalPlayer.getPlaybackState();
         switch (state) {
             case Player.STATE_BUFFERING:
@@ -173,8 +147,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public void seekTo(long time) {
-        if (mInternalPlayer == null)
-            return;
+        if (mInternalPlayer == null) return;
         mInternalPlayer.seekTo(time);
     }
 
@@ -188,12 +161,10 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
             new Thread() {
                 @Override
                 public void run() {
-                    //异步释放，防止卡顿
                     player.release();
                 }
             }.start();
         }
-
         mIsPreparing = false;
         mIsBuffering = false;
         mLastReportedPlaybackState = Player.STATE_IDLE;
@@ -203,15 +174,13 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public long getCurrentPosition() {
-        if (mInternalPlayer == null)
-            return 0;
+        if (mInternalPlayer == null) return 0;
         return mInternalPlayer.getCurrentPosition();
     }
 
     @Override
     public long getDuration() {
-        if (mInternalPlayer == null)
-            return 0;
+        if (mInternalPlayer == null) return 0;
         return mInternalPlayer.getDuration();
     }
 
@@ -229,10 +198,8 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public void setDisplay(SurfaceHolder holder) {
-        if (holder == null)
-            setSurface(null);
-        else
-            setSurface(holder.getSurface());
+        if (holder == null) setSurface(null);
+        else setSurface(holder.getSurface());
     }
 
     @Override
@@ -249,7 +216,6 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public void setOptions() {
-        //准备好就开始播放
         mInternalPlayer.setPlayWhenReady(true);
     }
 
@@ -272,7 +238,6 @@ public class ExoMediaPlayer extends AbstractPlayer implements VideoListener, Pla
 
     @Override
     public long getTcpSpeed() {
-        // no support
         return 0;
     }
 

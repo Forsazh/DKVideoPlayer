@@ -29,11 +29,9 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 public final class ExoMediaSourceHelper {
-
     private static ExoMediaSourceHelper sInstance;
-
     private final String mUserAgent;
-    private Context mAppContext;
+    private final Context mAppContext;
     private HttpDataSource.Factory mHttpDataSourceFactory;
     private Cache mCache;
 
@@ -45,24 +43,14 @@ public final class ExoMediaSourceHelper {
     public static ExoMediaSourceHelper getInstance(Context context) {
         if (sInstance == null) {
             synchronized (ExoMediaSourceHelper.class) {
-                if (sInstance == null) {
-                    sInstance = new ExoMediaSourceHelper(context);
-                }
+                if (sInstance == null) sInstance = new ExoMediaSourceHelper(context);
             }
         }
         return sInstance;
     }
 
-    public MediaSource getMediaSource(String uri) {
-        return getMediaSource(uri, null, false);
-    }
-
     public MediaSource getMediaSource(String uri, Map<String, String> headers) {
         return getMediaSource(uri, headers, false);
-    }
-
-    public MediaSource getMediaSource(String uri, boolean isCache) {
-        return getMediaSource(uri, null, isCache);
     }
 
     public MediaSource getMediaSource(String uri, Map<String, String> headers, boolean isCache) {
@@ -72,15 +60,8 @@ public final class ExoMediaSourceHelper {
                     .createMediaSource(contentUri);
         }
         int contentType = inferContentType(uri);
-        DataSource.Factory factory;
-        if (isCache) {
-            factory = getCacheDataSourceFactory();
-        } else {
-            factory = getDataSourceFactory();
-        }
-        if (mHttpDataSourceFactory != null) {
-            setHeaders(headers);
-        }
+        DataSource.Factory factory = isCache ? getCacheDataSourceFactory() : getDataSourceFactory();
+        if (mHttpDataSourceFactory != null) setHeaders(headers);
         switch (contentType) {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(factory).createMediaSource(contentUri);
@@ -108,9 +89,7 @@ public final class ExoMediaSourceHelper {
     }
 
     private DataSource.Factory getCacheDataSourceFactory() {
-        if (mCache == null) {
-            mCache = newCache();
-        }
+        if (mCache == null) mCache = newCache();
         return new CacheDataSourceFactory(
                 mCache,
                 getDataSourceFactory(),
@@ -124,20 +103,10 @@ public final class ExoMediaSourceHelper {
                 new ExoDatabaseProvider(mAppContext));
     }
 
-    /**
-     * Returns a new DataSource factory.
-     *
-     * @return A new DataSource factory.
-     */
     private DataSource.Factory getDataSourceFactory() {
         return new DefaultDataSourceFactory(mAppContext, getHttpDataSourceFactory());
     }
 
-    /**
-     * Returns a new HttpDataSource factory.
-     *
-     * @return A new HttpDataSource factory.
-     */
     private DataSource.Factory getHttpDataSourceFactory() {
         if (mHttpDataSourceFactory == null) {
             mHttpDataSourceFactory = new DefaultHttpDataSourceFactory(
@@ -145,7 +114,6 @@ public final class ExoMediaSourceHelper {
                     null,
                     DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                     DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-                    //http->https重定向支持
                     true);
         }
         return mHttpDataSourceFactory;
@@ -156,25 +124,17 @@ public final class ExoMediaSourceHelper {
             for (Map.Entry<String, String> header : headers.entrySet()) {
                 String key = header.getKey();
                 String value = header.getValue();
-                //如果发现用户通过header传递了UA，则强行将HttpDataSourceFactory里面的userAgent字段替换成用户的
                 if (TextUtils.equals(key, "User-Agent")) {
                     if (!TextUtils.isEmpty(value)) {
                         try {
                             Field userAgentField = mHttpDataSourceFactory.getClass().getDeclaredField("userAgent");
                             userAgentField.setAccessible(true);
                             userAgentField.set(mHttpDataSourceFactory, value);
-                        } catch (Exception e) {
-                            //ignore
+                        } catch (Exception ignored) {
                         }
                     }
-                } else {
-                    mHttpDataSourceFactory.getDefaultRequestProperties().set(key, value);
-                }
+                } else mHttpDataSourceFactory.getDefaultRequestProperties().set(key, value);
             }
         }
-    }
-
-    public void setCache(Cache cache) {
-        this.mCache = cache;
     }
 }

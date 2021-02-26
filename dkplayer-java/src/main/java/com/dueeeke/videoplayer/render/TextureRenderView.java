@@ -15,7 +15,7 @@ import com.dueeeke.videoplayer.player.AbstractPlayer;
 
 @SuppressLint("ViewConstructor")
 public class TextureRenderView extends TextureView implements IRenderView, TextureView.SurfaceTextureListener {
-    private MeasureHelper mMeasureHelper;
+    private final MeasureHelper mMeasureHelper;
     private SurfaceTexture mSurfaceTexture;
 
     @Nullable
@@ -68,11 +68,8 @@ public class TextureRenderView extends TextureView implements IRenderView, Textu
 
     @Override
     public void release() {
-        if (mSurface != null)
-            mSurface.release();
-
-        if (mSurfaceTexture != null)
-            mSurfaceTexture.release();
+        if (mSurface != null) mSurface.release();
+        if (mSurfaceTexture != null) mSurfaceTexture.release();
     }
 
     @Override
@@ -83,14 +80,11 @@ public class TextureRenderView extends TextureView implements IRenderView, Textu
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-        if (mSurfaceTexture != null) {
-            setSurfaceTexture(mSurfaceTexture);
-        } else {
+        if (mSurfaceTexture != null) setSurfaceTexture(mSurfaceTexture);
+        else {
             mSurfaceTexture = surfaceTexture;
             mSurface = new Surface(surfaceTexture);
-            if (mMediaPlayer != null) {
-                mMediaPlayer.setSurface(mSurface);
-            }
+            if (mMediaPlayer != null) mMediaPlayer.setSurface(mSurface);
         }
     }
 

@@ -6,20 +6,15 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 
-/**
- * 此类的目的是为了在ControlComponent中既能调用VideoView的api又能调用BaseVideoController的api，
- * 并对部分api做了封装，方便使用
- */
 public class ControlWrapper implements MediaPlayerControl, IVideoController {
-    
-    private MediaPlayerControl mPlayerControl;
-    private IVideoController mController;
-    
+    private final MediaPlayerControl mPlayerControl;
+    private final IVideoController mController;
+
     public ControlWrapper(@NonNull MediaPlayerControl playerControl, @NonNull IVideoController controller) {
         mPlayerControl = playerControl;
         mController = controller;
     }
-    
+
     @Override
     public void start() {
         mPlayerControl.start();
@@ -140,23 +135,13 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         return mPlayerControl.isTinyScreen();
     }
 
-    /**
-     * 播放和暂停
-     */
     public void togglePlay() {
-        if (isPlaying()) {
-            pause();
-        } else {
-            start();
-        }
+        if (isPlaying()) pause();
+        else start();
     }
 
-    /**
-     * 横竖屏切换，会旋转屏幕
-     */
     public void toggleFullScreen(Activity activity) {
-        if (activity == null || activity.isFinishing())
-            return;
+        if (activity == null || activity.isFinishing()) return;
         if (isFullScreen()) {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             stopFullScreen();
@@ -166,9 +151,6 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         }
     }
 
-    /**
-     * 横竖屏切换，不会旋转屏幕
-     */
     public void toggleFullScreen() {
         if (isFullScreen()) {
             stopFullScreen();
@@ -177,9 +159,6 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         }
     }
 
-    /**
-     * 横竖屏切换，根据适配宽高决定是否旋转屏幕
-     */
     public void toggleFullScreenByVideoSize(Activity activity) {
         if (activity == null || activity.isFinishing())
             return;
@@ -189,7 +168,7 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         if (isFullScreen()) {
             stopFullScreen();
             if (width > height) {
-               activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
         } else {
             startFullScreen();
@@ -254,22 +233,8 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         return mController.getCutoutHeight();
     }
 
-    /**
-     * 切换锁定状态
-     */
-    public void toggleLockState() {
-        setLocked(!isLocked());
-    }
-
-
-    /**
-     * 切换显示/隐藏状态
-     */
     public void toggleShowState() {
-        if (isShowing()) {
-            hide();
-        } else {
-            show();
-        }
+        if (isShowing()) hide();
+        else show();
     }
 }

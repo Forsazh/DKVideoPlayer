@@ -3,7 +3,6 @@ package com.dueeeke.videoplayer.controller;
 import android.graphics.Bitmap;
 
 public interface MediaPlayerControl {
-
     void start();
 
     void pause();

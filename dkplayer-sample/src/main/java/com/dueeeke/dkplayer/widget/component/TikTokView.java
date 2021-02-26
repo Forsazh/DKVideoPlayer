@@ -15,19 +15,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.dueeeke.dkplayer.R;
-import com.dueeeke.videoplayer.controller.IControlComponent;
 import com.dueeeke.videoplayer.controller.ControlWrapper;
+import com.dueeeke.videoplayer.controller.IControlComponent;
 import com.dueeeke.videoplayer.player.VideoView;
-import com.dueeeke.videoplayer.util.L;
 
 public class TikTokView extends FrameLayout implements IControlComponent {
-
-    private ImageView thumb;
-    private ImageView mPlayBtn;
-
+    private final ImageView thumb;
+    private final ImageView mPlayBtn;
     private ControlWrapper mControlWrapper;
-    private int mScaledTouchSlop;
-    private int mStartX, mStartY;
+    private final int mScaledTouchSlop;
+    private int mStartX;
+    private int mStartY;
 
     public TikTokView(@NonNull Context context) {
         super(context);
@@ -54,9 +52,6 @@ public class TikTokView extends FrameLayout implements IControlComponent {
         mScaledTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
-    /**
-     * 解决点击和VerticalViewPager滑动冲突问题
-     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
@@ -89,48 +84,34 @@ public class TikTokView extends FrameLayout implements IControlComponent {
 
     @Override
     public void onVisibilityChanged(boolean isVisible, Animation anim) {
-
     }
 
     @Override
     public void onPlayStateChanged(int playState) {
         switch (playState) {
             case VideoView.STATE_IDLE:
-                L.e("STATE_IDLE " + hashCode());
                 thumb.setVisibility(VISIBLE);
                 break;
             case VideoView.STATE_PLAYING:
-                L.e("STATE_PLAYING " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(GONE);
                 break;
             case VideoView.STATE_PAUSED:
-                L.e("STATE_PAUSED " + hashCode());
                 thumb.setVisibility(GONE);
                 mPlayBtn.setVisibility(VISIBLE);
-                break;
-            case VideoView.STATE_PREPARED:
-                L.e("STATE_PREPARED " + hashCode());
-                break;
-            case VideoView.STATE_ERROR:
-                L.e("STATE_ERROR " + hashCode());
-                Toast.makeText(getContext(), R.string.dkplayer_error_message, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
     @Override
     public void onPlayerStateChanged(int playerState) {
-
     }
 
     @Override
     public void setProgress(int duration, int position) {
-
     }
 
     @Override
     public void onLockStateChanged(boolean isLocked) {
-
     }
 }
